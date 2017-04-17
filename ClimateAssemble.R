@@ -9,6 +9,8 @@ source("degreedays.R")
 
 #--------------------------------------
 fdir= "C:\\Users\\Buckley\\Google Drive\\AlexanderResurvey\\DataForAnalysis\\"
+# Set new working directory
+
 
 #load climate data
 setwd( paste(fdir, "climate", sep="") )   
