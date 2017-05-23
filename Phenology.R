@@ -4,14 +4,15 @@ library(plyr)
 library(dplyr)
 
 #source degree days function
-setwd("C:\\Users\\Buckley\\Documents\\HopperPhenology\\")
 source("degreedays.R")
 
 #--------------------------------------
+#create path to data directory
 fdir= "C:\\Users\\Buckley\\Google Drive\\AlexanderResurvey\\DataForAnalysis\\"
+#fdir= "C:/Users/stuart/Google Drive/DataForAnalysis/"
 
 #load climate data
-setwd( paste(fdir, "climate", sep="") )   
+setwd(paste(fdir, "climate", sep= ""))
 clim= read.csv("AlexanderClimateAll.csv")
 
 #Use NOAA for CHA
@@ -21,14 +22,14 @@ clim$Site= as.factor(clim$Site)
 
 #------
 ## ADD GDD data
-dd= degree.days.mat(cbind(clim$Min, clim$Max),LDT=12)
-inds= which(!is.na(clim[,"Min"])& !is.na(clim[,"Max"]) )
+inds= which(!is.na(clim[,"Min"]) & !is.na(clim[,"Max"]))
 clim$dd=NA
-clim$dd[inds]= apply( clim[inds,c("Min","Max")], MARGIN=1, FUN=degree.days.mat, LDT=12 )  
+clim$dd[inds]= apply(clim[inds,c("Min","Max")], MARGIN= 1,
+                     FUN= degree.days.mat, LDT= 12)  
 
 #restrict to March 1 to Aug 31, ordinal 60 - 243
 #code summer days
-clim$summer=NA
+clim$summer=0
 clim[which(clim$Julian>59 & clim$Julian<244),"summer"]<-1
 #set degree days outside summer to 0
 clim[which(clim$summer!=1),"dd"]=0
@@ -38,6 +39,15 @@ clim[which(clim$summer!=1),"dd"]=0
 clim = clim %>% group_by(Year,Site) %>% arrange(Julian) %>% mutate(cdd = cumsum(dd)) 
 #need to deal with NAs?
 
+years = c(1958:1960, 2006:2014)
+clim2 = clim[clim$Year %in% years,]
+clim2$period="initial"
+clim2[which(clim2$Year>1960) ,"period"]="resurvey"
+ggplot(data=clim2, aes(x=Julian, y = cdd, color=as.factor(Year),linetype=period))+geom_line()+facet_grid(.~Site) +theme_bw()
+
+c1 <- clim2[clim2$Site == "C1",]
+ggplot(data=clim2[clim2$Site == "A1",], aes(x=Julian, y = cdd, color=as.factor(Year),linetype=period))+geom_line() +theme_bw()
+plot(c1$Julian, c1$cdd, type = "l")#, col = c1$Year)
 #---------------------
 #load hopper data
 setwd( paste(fdir, "grasshoppers\\SexCombined\\", sep="") )
@@ -241,3 +251,4 @@ hop2$mean.cdd[matched]<- clim$cdd[match1[matched]]
 ggplot(data=hop2, aes(x=year, y = min.cdd, color=species))+geom_point()+geom_line()+facet_grid(.~site) +theme_bw()+ theme(legend.position = "bottom")
 #gdd at peak
 ggplot(data=hop2, aes(x=year, y = mean.cdd, color=species))+geom_point()+geom_line()+facet_grid(.~site) +theme_bw()+ theme(legend.position = "bottom")
+

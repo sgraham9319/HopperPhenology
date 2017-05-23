@@ -3,9 +3,6 @@ library(ggplot2)
 library(plyr)
 library(dplyr)
 
-#source degree days function
-source("degreedays.R")
-
 #--------------------------------------
 #create path to data directory
 fdir= "C:\\Users\\Buckley\\Google Drive\\AlexanderResurvey\\DataForAnalysis\\"
@@ -187,8 +184,8 @@ ggplot(data= clim1, aes(x= Year, y= Min, color= Site )) + geom_line() +
   theme_bw()
 
 #===============
-# WRITE OUT DATA
+# Write out data
 #===============
 
-setwd(paste(fdir, "climate", sep= ""))   
-write.csv(clim1, "AlexanderClimateAll.csv")
+setwd(paste(fdir, "climate", sep= "")) 
+write.csv(clim, "AlexanderClimateAll.csv", row.names = FALSE)
